@@ -1,0 +1,65 @@
+Oppgave 4:
+Hva forsvant, og hvorfor trenger du ikke si til Vue at doubled avhenger av count?
+
+--Det som har forsvunnet er manuell DOM-manupulasjon og behovet for å oppdatere visningen selv.
+Det er fordi Vue automatisk gjør dette gjennom sitt reaktive system.
+Man slipper da å fortelle programmet manuelt når HTML-en skal oppdatere seg.
+Vue bruker reaktivitiet til å holde styr på hvilke verdier som endres, hvilke beregninger som påvirkes,
+og hvilke deler av templaten som må oppdateres.
+
+Vue oppdager avhengigheten automatisk når den kjører funksjonen inni computed().
+
+const count = ref(0)
+const doubled = computed(() => count.value * 2)
+
+ref() forteller Vue: Denne verdien skal være reaktiv.
+computed() forteller Vue: Denne verdien skal beregnes ut fra det som brukes inni funksjonen.
+Vue leser funksjonen og finner selv ut hvilke verdier den er avhengig av.
+
+Vue finner selv ut av hva doubled er avhengig av, og vi slipper å fortelle programmet det selv.
+Vue finner ut av det ved å observere hvilke reaktive verdier funksjonen leser (dependency tracking).
+
+----------------------------------------------------------------------------------------------------------------------------
+
+App.vue ──userName──→ TextEditor ──userName──→ EditorToolbar
+
+TextEditor bruker ikke userName selv — den sender det bare videre. Det heter prop drilling.
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Avslutning: tre spørsmål - MANDAG:
+
+---------------------------------------------------------------------------------------
+
+doubled i ClickCounter er en computed. Hva hadde skjedd om du skrev den som watch?
+
+--Man hadde fått det til å fungere, men watch reagerer på endringer og utfører en handling, mens computed beregner og returnerer verdien.
+watch passer bedre når man vil gjøre noe som ikke bare handler om å beregne en verdi, som f.eks å lagre userName i localStorage, sende data til API
+eller reagere på endringer med en annen handling.
+computed brukes når vi vil beregne en verdi basert på andre reaktive verdier.
+watch brukes når man vil utføre noe som følge av at en reaktiv verdi endres.
+
+---------------------------------------------------------------------------------------
+greeting er computed, men lagringen av userName er watch. Hvorfor den forskjellen?
+
+--computed brukes når vi vil beregne en verdi basert på andre reaktive verdier.
+Siden vi ikke trenger å gjøre noe annet enn å beregne teksten bruker vi computed.
+
+--Lagringen av userName er watch fordi vi ikke ønsker å beregne en ny verdi. 
+Vi ønsker å utføre en handling når userName endres, ved at vi her lagrer navnet i neettleseren (localStorage).
+
+---------------------------------------------------------------------------------------
+
+TextEditor videresender userName uten å bruke det. Hva må du endre i TextEditor hvis 
+EditorToolbar også trenger appName — og hva sier det om prop drilling?
+
+--Først av alt må man da legge til appName: string i defineProps<{userName: string appName: string}>()
+Deretter må vi sende appName videre til <EditorToolbar :userName="userName" :charCount="charCount" :appName="appName" />
+Vi må også endre i App.vue for at TextEditor skal motta appName. <TextEditor class="app-editor" :userName="userName" appname="Code Collab" />
+Så må vi inn i EditorToolbar.vue og legge til appName i defineProps<{ userName: string; charCount:number; appName:string}>()
+Først da lam EditorToolbar bruke appName.
+
+Problemet er at TextEditor må motta og videresende appName, selv om den SELV ikke trenger verdien.
+Prop drilling betyr at data sendes igjennom flere komponenter via props, selv om mellomliggende komponenter ikke bruker dataene selv.
+Her må TextEditor motta appName fra App.vue, og videresende det til EditorToolbar. Det kan gjøre koden mer komplisert og 
+tung å følge med på når mange komponenter trenger de samme dataene.

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
 import TextEditor from './components/TextEditor.vue'
@@ -8,22 +8,43 @@ import ClickCounter from './components/ClickCounter.vue'
 import EditorToolbar from './components/EditorToolbar.vue'
 
 const userName = ref('')
+
+const greeting = computed(() => {
+  return userName.value ? `Hei, ${userName.value}` : 'Hei, ukjent'
+})
+
 </script>
 
 <template>
   <div class="app-layout">
-    <AppHeader v-model:userName="userName" class="app-header" />
-    <TextEditor class="app-editor" :userName="userName" />
-    <AssistantPanel class="app-assistant" />
-
-    <EditorToolbar :userName="userName" :charCount="0" />
+    <AppHeader 
+    v-model:userName="userName" 
+    :greeting="greeting" 
+    class="app-header"/>
     
-    <AppFooter appName="Code Collab" :year="2026" class="app-footer" />
+    <TextEditor 
+    class="app-editor" 
+    :userName="userName" />
+    
+    <AssistantPanel 
+    class="app-assistant" />
+
+    <EditorToolbar 
+    :userName="userName" 
+    :charCount="0" />
+    
+    <AppFooter 
+    appName="Code Collab" 
+    :year="2026" 
+    class="app-footer" />
   </div>
 
   <div>
-    <ClickCounter :initial="5" @inc="(n) => console.log(`teller: ${n}`)" />
-    <ClickCounter :initial="10" />
+    <ClickCounter 
+    :initial="5" @inc="(n) => console.log(`teller: ${n}`)" />
+    
+    <ClickCounter 
+    :initial="10" />
   </div>
 </template>
 
