@@ -40,6 +40,7 @@ computed brukes når vi vil beregne en verdi basert på andre reaktive verdier.
 watch brukes når man vil utføre noe som følge av at en reaktiv verdi endres.
 
 ---------------------------------------------------------------------------------------
+
 greeting er computed, men lagringen av userName er watch. Hvorfor den forskjellen?
 
 --computed brukes når vi vil beregne en verdi basert på andre reaktive verdier.
@@ -63,3 +64,41 @@ Problemet er at TextEditor må motta og videresende appName, selv om den SELV ik
 Prop drilling betyr at data sendes igjennom flere komponenter via props, selv om mellomliggende komponenter ikke bruker dataene selv.
 Her må TextEditor motta appName fra App.vue, og videresende det til EditorToolbar. Det kan gjøre koden mer komplisert og 
 tung å følge med på når mange komponenter trenger de samme dataene.
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Stoppunkt
+Hvorfor returnerer useMouse x og y som et objekt og ikke en array? (tenk på destrukturering med navn)
+
+--Fordi hadde vi returnert med et array måtte vi husket rekkefølgen x og y er skrevet.
+Da kunne vi eksempeltvis ikke skrevet <p>Musen er på {{ y }}, {{ x }}</p> fordi disse blir da skrevet
+i feil rekkefølge når dataene sendes inn.
+Vue hjelper oss med dette automatisk når vi sender dem inn som objekter med navn.
+const { x , y } = useMouse() - er selvdokumenterende.
+const [ x , y ] = useMouse() - krever at man husker rekkefølgen.
+
+---------------------------------------------------------------------------------------
+
+Hva skjer med x og y hvis komponenten fjernes fra DOM-en? (se på onUnmounted)
+
+--onUnmounted registrerer et callback etter at en component har blitt unmounted.
+Hvis komponenten da fjernes fra DOM-en vil ikke x og y oppdatere seg.
+Årsaken til dette er fordi onUnmounted kaller removeEventListener('mousemove', update).
+Siden EventListener-en fjernes fra window, så blir update aldri kalt igjen, og x.value og y.value
+beholder bare den siste verdien de hadde.
+
+---------------------------------------------------------------------------------------
+
+Hvis useMouse() kalles i App.vue og AssistantPanel.vue — deler de samme museposisjon, eller får de hver sin?
+
+--De får hver sin. Hvert kall til useMouse() lager nye refs ( x og y )
+Legger man eksempeltvis til x.value = 999 i AssistantPanel endrer bare den ene seg frem til neste musebevegelse
+overskriver den og App.vue sin blir uberørt.
+Åpner man devtools kan man se at det ligger to lyttere på window
+
+---------------------------------------------------------------------------------------
+
+
+Hvorfor fungerer onMounted og onUnmounted inne i composablen — den er jo ikke en komponent?
+
+---------------------------------------------------------------------------------------
