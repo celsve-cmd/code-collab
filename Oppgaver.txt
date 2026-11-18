@@ -67,15 +67,13 @@ tung å følge med på når mange komponenter trenger de samme dataene.
 
 ----------------------------------------------------------------------------------------------------------------------------
 
-Stoppunkt
 Hvorfor returnerer useMouse x og y som et objekt og ikke en array? (tenk på destrukturering med navn)
 
---Fordi hadde vi returnert med et array måtte vi husket rekkefølgen x og y er skrevet.
-Da kunne vi eksempeltvis ikke skrevet <p>Musen er på {{ y }}, {{ x }}</p> fordi disse blir da skrevet
-i feil rekkefølge når dataene sendes inn.
-Vue hjelper oss med dette automatisk når vi sender dem inn som objekter med navn.
-const { x , y } = useMouse() - er selvdokumenterende.
-const [ x , y ] = useMouse() - krever at man husker rekkefølgen.
+--useMouse returnerer et objekt fordi objekt-destrukturering bruker navn, ikke posisjon. 
+Da kan kalleren plukke ut bare x eller y, i hvilken som helst rekkefølge, og døpe dem om ved behov ({ x: mouseX }). 
+Det gjør API-et selvdokumenterende og gjør det enkelt å utvide med flere verdier senere uten å bryte eksisterende kode.
+Hadde man returnert useMouse som et array, må man vite at indeks 0 er x, og indeks 1 er y.
+Man må da huske rekkefølgen, og kan ikke skrive de uavhengig av hverandre.
 
 ---------------------------------------------------------------------------------------
 
@@ -91,14 +89,18 @@ beholder bare den siste verdien de hadde.
 
 Hvis useMouse() kalles i App.vue og AssistantPanel.vue — deler de samme museposisjon, eller får de hver sin?
 
---De får hver sin. Hvert kall til useMouse() lager nye refs ( x og y )
+--De får hver sin. Hvert kall til useMouse() lager nye refs (x og y) og en egen mousemove-lytter på window.
+Verdiene ser like ut fordi begge lytter på den samme musen, men det er separate refs.
 Legger man eksempeltvis til x.value = 999 i AssistantPanel endrer bare den ene seg frem til neste musebevegelse
 overskriver den og App.vue sin blir uberørt.
-Åpner man devtools kan man se at det ligger to lyttere på window
+Åpner man devtools kan man se at det ligger to lyttere på window.
 
 ---------------------------------------------------------------------------------------
 
-
 Hvorfor fungerer onMounted og onUnmounted inne i composablen — den er jo ikke en komponent?
+
+--Fordi composablen er bare en vanlig funksjon, men den kalles på synkront under <script setup().... til en komponent.
+Vue lagrer den aktive komponenten som en currentInstance, og onMounted/onUnmounted registrerer callbackene på den.
+Derfor fungerer lifecycle-hooks i composables, så leenge de kalles synkront i setup().
 
 ---------------------------------------------------------------------------------------

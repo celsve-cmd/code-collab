@@ -27,7 +27,7 @@ export function useMessages() {
       messages.value.push({
         id: nesteId++,
         role: 'assistant',
-        text: 'Godt spørsmål. Dette svaret er en stub.'
+        text: 'Godt spørsmål! Dette svaret er en stub.'
       })
     }, 800)
   }

@@ -1,14 +1,32 @@
 <script setup lang="ts">
-import { useMouse } from '../composables/useMouse'
+import { useMessages } from '../composables/useMessages'
 
-const { x, y } = useMouse()
+defineProps<{ userName: string }>()
+
+const { messages, newMessage, messageCount, send } = useMessages()
 </script>
-
 
 <template>
   <aside>
-    <h2>Assistent</h2>
-    <p>Kommer i morgen.</p>
-    <p>Musen er på {{ x }}, {{ y }}</p>
+    <h2>Assistent ({{ messageCount }})</h2>
+    <p v-if="messages.length === 0">Ingen meldinger ennå.</p>
+    <ul v-else>
+      <li v-for="message in messages" :key="message.id" :class="message.role">
+        <strong>{{ message.role === 'user' ? userName : 'Assistent' }}:</strong>
+        {{ message.text }}
+      </li>
+    </ul>
+    <input v-model="newMessage" @keyup.enter="send" placeholder="Spør om koden..." />
+    <button @click="send">Send</button>
   </aside>
 </template>
+
+<style scoped>
+aside {
+  padding: 1rem;
+  background-color: #f9f9f9;
+  border: 1px solid #313030;
+  border-radius: 4px;
+  margin: 1rem;
+}
+</style>

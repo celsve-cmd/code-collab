@@ -5,8 +5,8 @@ const props = defineProps<{ userName: string; charCount: number }>()
 
 const statusText = computed(() =>
   props.userName
-    ? `${props.userName} redigerer `
-    : 'Skriv navnet ditt for å starte '
+    ? `${props.userName} redigerer`
+    : 'Skriv navnet ditt for å starte'
 )
 </script>
 
