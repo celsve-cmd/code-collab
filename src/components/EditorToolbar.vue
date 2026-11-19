@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, inject, ref } from 'vue'
+import { userNameKey } from '../types'
 
-const props = defineProps<{ userName: string; charCount: number }>()
+defineProps<{ charCount: number }>()
+const userName = inject(userNameKey, ref(''))
 
 const statusText = computed(() =>
-  props.userName
-    ? `${props.userName} redigerer`
-    : 'Skriv navnet ditt for å starte'
+  userName.value ? `${userName.value} redigerer ` : 'Skriv navnet ditt for å starte '
 )
 </script>
 

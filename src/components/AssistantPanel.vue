@@ -1,10 +1,13 @@
 <script setup lang="ts">
+import { inject, ref } from 'vue'
+import { userNameKey } from '../types'
 import { useMessages } from '../composables/useMessages'
 
-defineProps<{ userName: string }>()
+const userName = inject(userNameKey, ref(''))
 
 const { messages, newMessage, messageCount, send } = useMessages()
 </script>
+
 
 <template>
   <aside>

@@ -1,25 +1,25 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, provide, ref, readonly } from 'vue'
 //components
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
 import TextEditor from './components/TextEditor.vue'
 import AssistantPanel from './components/AssistantPanel.vue'
 import ClickCounter from './components/ClickCounter.vue'
-import EditorToolbar from './components/EditorToolbar.vue'
 //composables
 import { useMouse } from './composables/useMouse'
 import { useTimer } from './composables/useTimer'
-import { useLocalStorage } from './composables/useLocalStorage.ts'
+//import { useLocalStorage } from './composables/useLocalStorage'
+import { userNameKey, setUserNameKey, displayNameKey } from './types'
 
-
-
-const userName = useLocalStorage('code-collab-user', '')
-
-
-const greeting = computed(() => {
-  return userName.value ? `Hei, ${userName.value}` : 'Hei, ukjent'
+const userName = ref('')
+provide(userNameKey, readonly(userName))
+provide(setUserNameKey, (name: string) => {
+  userName.value = name
 })
+
+const displayName = computed(() => userName.value || 'Anonym')
+provide(displayNameKey, displayName)
 
 
 const { x, y } = useMouse()
@@ -43,13 +43,13 @@ const { formatted, isRunning, start, stop, reset } = useTimer(props.initialSecon
 
 <template>
   <div class="app-layout">
-    <AppHeader v-model:userName="userName" :greeting="greeting" class="app-header" />
+    <AppHeader class="app-header" />
 
-    <TextEditor class="app-editor" :userName="userName" />
+    <TextEditor class="app-editor"/>
 
-    <EditorToolbar :userName="userName" :charCount="0" />
+    <EditorToolbar :charCount="0" />
 
-    <AssistantPanel :userName="userName" class="app-assistant" />
+    <AssistantPanel class="app-assistant" />
 
     <div class="click-counters">
       <ClickCounter :initial="5" @inc="(n) => console.log(`teller: ${n}`)" />

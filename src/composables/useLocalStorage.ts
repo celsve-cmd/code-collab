@@ -10,3 +10,7 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
 
   return data
 }
+
+
+
+//FIKS LOCAL STORAGE!!

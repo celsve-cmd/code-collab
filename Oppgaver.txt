@@ -103,4 +103,111 @@ Hvorfor fungerer onMounted og onUnmounted inne i composablen — den er jo ikke 
 Vue lagrer den aktive komponenten som en currentInstance, og onMounted/onUnmounted registrerer callbackene på den.
 Derfor fungerer lifecycle-hooks i composables, så leenge de kalles synkront i setup().
 
+----------------------------------------------------------------------------------------------------------------------------
+
+Hvor mange props måtte TextEditor videresende hvis EditorToolbar 
+trengte både userName og isDirty? Og hva måtte du endre i TextEditor?
+
+--isDirty finnes ikke noe sted i koden, og det har heller ikke blitt tatt opp i pensumplanen at dette er en del som skal være med.
+Vi videresender 1 prop, userName.charCount regnes ut inni TextEditor selv, så den er ikke noe som videresendes fra forelderen.
+Hadde vi hatt med isDirty, hadde vi sendt med 2 props. Da måtte vi i tillegg deklarert isDirty: boolean i defineProps,
+så sende :isDirty="isDirty" videre og la App.vue sende den inn.
+
+Det som måtte endres i texteditor var at vi måtte ta imot userName med defineProps<{userName: string}>(),
+Vi måtte så sende den videre til EditorToolbar i templaten med :userName="userName".
+Så måtte vi importere EditorToolbar.
+
 ---------------------------------------------------------------------------------------
+
+Hva er ulempen med provide/inject? 
+(Hint: det er mindre eksplisitt — du kan ikke se på komponentens props hva den trenger)
+
+--Man ser ikke i props hva komponenten trenger, det er vanskeligere å spore hvor verdien kommer fra, 
+og komponenten blir mindre selvstendig og vanskeligere å gjenbruke og teste. 
+Typesikkerhet krever InjectionKey.
+
+---------------------------------------------------------------------------------------
+
+Når bør du fortsatt bruke props, selv om provide/inject finnes?
+
+--Man bør bruke props når dataflyten er direkte mellom forelder og barn, når komponenten skal være gjenbrukbar 
+og selvdokumenterende, og når det bare er få ledd. Props gir eksplisitt, sporbar og lett testbar dataflyt. 
+provide/inject passer bedre for global kontekst gjennom mange ledd.
+
+I denne koden vil det da si App.vue til AssistantPanel med userName (per dagens (18-19.November) standpunkt).
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Hva skjer hvis du injiserer en nøkkel som ingen har sendt med provide?
+
+--Hvis man injiserer en nøkkel som ingen har gjort provide for, returnerer inject undefined, og Vue skriver en advarsel i 
+konsollen (“injection ‘userName’ not found”). 
+Selve kallet krasjer ikke, men koden som bruker verdien gjør det ofte. 
+Hvis man for eksempel skriver userName.value i scriptet, får man en TypeError, fordi man prøver å lese .value på undefined.
+I templaten er det mindre dramatisk, siden {{ userName }} bare vises som tomt.
+
+Dette skjer fordi provide/inject er en skjult kobling: Vue kan ikke sjekke på forhånd at en forelder faktisk leverer 
+verdien, så feilen oppdages først når koden kjører. 
+TypeScript hjelper delvis, siden returtypen blir Ref<string> | undefined.
+
+---------------------------------------------------------------------------------------
+
+Kan to komponenter sende samme nøkkel med provide? Hva skjer da? (Hint: den nærmeste vinner)
+
+--Ja, flere komponenter kan gjøre provide med samme nøkkel. 
+inject bruker den nærmeste forelderen oppover i treet, så en komponent kan overstyre verdien fra en 
+høyere opp for sine egne etterkommere. 
+Søsken og andre deler av treet får fortsatt den opprinnelige verdien. 
+Det gir ingen feilmelding, så uforsiktig gjenbruk av nøkler kan gi forvirrende feil. 
+Derfor bør man bruke unike nøkler, f.eks. Symbol med InjectionKey.
+
+---------------------------------------------------------------------------------------
+
+Hvorfor pakket vi userName inn i en ref før vi sendte den videre?
+
+--Vi pakket userName i en ref for at den skal være reaktiv og delt. 
+Sender man en vanlig streng, får barna bare en kopi av verdien slik den var da provide ble kalt. 
+Sender man selve refen, deler alle den samme reaktive boksen, så endringer i .value oppdaterer alle som har injisert den. 
+Vue kan ikke spore en vanlig streng, men en ref er et objekt der Vue sporer lesing og skriving av .value. 
+Man må derfor sende selve refen, ikke userName.value. 
+I templaten pakker Vue ut refen automatisk, så der skriver man {{ userName }}. 
+Typen er inject<Ref<string>>(...) og ikke inject<string>(...) fordi det man får tilbake er en ref, ikke en streng.
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Hva er forskjellen på provide('key', verdi) og provide('key', ref(verdi))? 
+Hvorfor er den ene nyttig og den andre farlig?
+
+--provide('key', verdi) sender verdien som en kopi slik den er akkurat da.
+Hvis verdien er en primitiv som en streng og ikke en reaktiv ref('') vet ikke Vue at den skal følges.
+Det er farlig fordi det feiler uten å gi feilmelding, men UI-et oppdateres ikke.
+
+provide('key', ref(verdi)) sender selve ref-objektet, så alle som etterspør den deler samme reaktive boks,
+og endringer i .value oppdaterer alle. Man må sende ref-en og ikke .value, og for verdier som aldri endres,
+holder det med en vanlig verdi.
+
+---------------------------------------------------------------------------------------
+
+Hva skjer hvis AppHeader endrer userName.value direkte — ser AssistantPanel endringen? 
+Hva hvis userName er pakket inn i readonly?
+
+--Ja, hvis refen ikke er readonly.
+provide sender selve ref-objektet, så AppHeader og AssistantPanel deler samme reaktive boks.
+Når AppHeader endrer userName.value, oppdateres AssistantPanel umiddelbart.
+Ulempen er at alle komponenter kan endre verdien fra hvor som helst, noe som gjør dataflyten uoversiktlig
+og feil vanskelige å spore.
+
+Hvis userName er pakket i readonly, blir skrivingen ignorert og Vue gir en advarsel i konsollen,
+så AssistantPanel ser ingen endring. Appen krasjer ikke.
+Eieren (App.vue) kan fortsatt endre originalen, og barna ser det via readonly-visningen.
+Derfor lar man barna endre verdien gjennom en kontrollert funksjon som setUserName.
+
+---------------------------------------------------------------------------------------
+
+Når ville du sendt en funksjon i stedet for selve ref-en?
+
+--Man sender en funksjon i stedet for en skrivbar ref når eieren av dataen skal kontrollere hvordan den endres.
+Funksjonen kan validere input, trigge flere effekter samtidig og gir ett tydelig sted å feilsøke.
+Barna kan da lese via en readonly-ref og endre kun via funksjonen, i stedet for å skrive fritt fra hvor som helst.
+
+----------------------------------------------------------------------------------------------------------------------------

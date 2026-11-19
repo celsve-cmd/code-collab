@@ -1,23 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue'
+import { computed } from 'vue'
+import EditorToolbar from './EditorToolbar.vue'
+import { useLocalStorage } from '../composables/useLocalStorage'
 
-defineProps<{ userName: string }>()
-
-const text = ref('')
+const text = useLocalStorage('editorText', '')
 const charCount = computed(() => text.value.length)
-
-watch(text, (newValue) => {
-  localStorage.setItem('editorText', newValue)
-})
-
 </script>
 
 <template>
   <section>
-    <EditorToolbar
-      :userName="userName"
-      :charCount="charCount"
-    />
+    <EditorToolbar :charCount="charCount" />
     <textarea v-model="text" placeholder="Skriv koden din her..." />
   </section>
 </template>
