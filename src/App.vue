@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, provide, ref, readonly } from 'vue'
+import { computed, provide, readonly } from 'vue'
 //components
 import AppHeader from './components/AppHeader.vue'
 import AppFooter from './components/AppFooter.vue'
@@ -9,10 +9,12 @@ import ClickCounter from './components/ClickCounter.vue'
 //composables
 import { useMouse } from './composables/useMouse'
 import { useTimer } from './composables/useTimer'
-//import { useLocalStorage } from './composables/useLocalStorage'
+import { useLocalStorage } from './composables/useLocalStorage'
 import { userNameKey, setUserNameKey, displayNameKey } from './types'
 
-const userName = ref('')
+
+
+const userName = useLocalStorage('code-collab-user', '')
 provide(userNameKey, readonly(userName))
 provide(setUserNameKey, (name: string) => {
   userName.value = name
@@ -46,8 +48,6 @@ const { formatted, isRunning, start, stop, reset } = useTimer(props.initialSecon
     <AppHeader class="app-header" />
 
     <TextEditor class="app-editor"/>
-
-    <EditorToolbar :charCount="0" />
 
     <AssistantPanel class="app-assistant" />
 

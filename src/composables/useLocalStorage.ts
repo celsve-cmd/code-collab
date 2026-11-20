@@ -1,8 +1,15 @@
 import { ref, watch } from 'vue'
 
 export function useLocalStorage<T>(key: string, defaultValue: T) {
-  const stored = localStorage.getItem(key)
-  const data = ref<T>(stored ? JSON.parse(stored) : defaultValue)
+  let initial = defaultValue
+  try {
+    const stored = localStorage.getItem(key)
+    if (stored !== null) initial = JSON.parse(stored)
+  } catch {
+    // ugyldig data, bruk default
+  }
+
+  const data = ref<T>(initial)
 
   watch(data, (val) => {
     localStorage.setItem(key, JSON.stringify(val))
@@ -10,7 +17,3 @@ export function useLocalStorage<T>(key: string, defaultValue: T) {
 
   return data
 }
-
-
-
-//FIKS LOCAL STORAGE!!
