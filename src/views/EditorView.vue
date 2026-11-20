@@ -3,6 +3,7 @@ import { computed, provide, readonly, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 //components
+import ProjectBadge from '../components/ProjectBadge.vue'
 import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import TextEditor from '../components/TextEditor.vue'
@@ -15,18 +16,12 @@ import AssistantPanel from '../components/AssistantPanel.vue'
 import { useLocalStorage } from '../composables/useLocalStorage'
 import { userNameKey, setUserNameKey, displayNameKey } from '../types'
 
-
 const route = useRoute()
 
-// Les prosjektId fra URL-en
-const prosjektId = computed(() => route.params.prosjektId as string)
-
-// Reager på endring i prosjektId (f.eks. navigerer fra /editor/123 til /editor/456)
 watch(() => route.params.prosjektId, (nyId) => {
     console.log('Byttet prosjekt til:', nyId)
     // Her ville du lastet inn prosjektdata
 })
-
 
 const userName = useLocalStorage('code-collab-user', '')
 provide(userNameKey, readonly(userName))
@@ -37,66 +32,49 @@ provide(setUserNameKey, (name: string) => {
 const displayName = computed(() => userName.value || 'Anonym')
 provide(displayNameKey, displayName)
 
-
 //const { x, y } = useMouse()
-
-// const props = withDefaults(defineProps<{
-//     initialSeconds?: number
-// }>(), {
-//     initialSeconds: 60,
-// })
-
-// const emit = defineEmits<{
-//     (e: 'timer-complete'): void
-// }>()
-
-//const { formatted, isRunning, start, stop, reset } = useTimer(props.initialSeconds, () => {
-//    emit('timer-complete')
+//const { formatted, isRunning, start, stop, reset } = useTimer(60, () => {
+//    console.log('Timer ferdig')
 //})
-
 </script>
 
 <template>
-
-    <nav class="top-nav">
-        <RouterLink to="/">← Tilbake til forsiden</RouterLink>
-    </nav>
-
-    <div class="app-layout">
-
-        <nav v-if="prosjektId" class="project-badge">
-            Prosjekt: {{ prosjektId }}
+    <div>
+        <nav class="top-nav">
+            <RouterLink to="/">← Tilbake til forsiden</RouterLink>
         </nav>
 
-        <AppHeader class="app-header" />
-        <TextEditor class="app-editor" />
-        <AssistantPanel class="app-chat" />
+        <div class="app-layout">
+            <ProjectBadge class="app-badge" />
 
-        <!--
-        <div class="click-counters">
-            <ClickCounter :initial="5" @inc="(n) => console.log(`teller: ${n}`)" />
-            <ClickCounter :initial="10" />
+            <AppHeader class="app-header" />
+            <TextEditor class="app-editor" />
+            <AssistantPanel class="app-chat" />
+
+            <!--
+            <div class="click-counters">
+                <ClickCounter :initial="5" @inc="(n) => console.log(`teller: ${n}`)" />
+                <ClickCounter :initial="10" />
+            </div>
+
+            <div class="mouse-coordinates">
+                <p>Musen er på {{ x }}, {{ y }}</p>
+            </div>
+
+            <div class="timer">
+                <p class="time">{{ formatted }}</p>
+                <p :style="{ color: isRunning ? 'green' : 'gray' }">
+                    {{ isRunning ? 'Running' : 'Stopped' }}
+                </p>
+                <button @click="start">Start</button>
+                <button @click="stop">Stop</button>
+                <button @click="reset">Reset</button>
+            </div>
+            -->
+
+            <AppFooter appName="Code Collab" :year="new Date().getFullYear()" class="app-footer" />
         </div>
-
-        <div class="mouse-coordinates">
-            <p>Musen er på {{ x }}, {{ y }}</p>
-        </div>
-
-        <div class="timer">
-            <p class="time">{{ formatted }}</p>
-            <p :style="{ color: isRunning ? 'green' : 'gray' }">
-                {{ isRunning ? 'Running' : 'Stopped' }}
-            </p>
-            <button @click="start">Start</button>
-            <button @click="stop">Stop</button>
-            <button @click="reset">Reset</button>
-        </div>
-        -->
-
-        <AppFooter appName="Code Collab" :year="new Date().getFullYear()" class="app-footer" />
     </div>
-
-
 </template>
 
 <style scoped>
@@ -119,6 +97,7 @@ provide(displayNameKey, displayName)
     background: #ddd;
 }
 
+.app-badge,
 .app-header,
 .app-footer {
     grid-column: 1 / -1;
@@ -128,6 +107,10 @@ provide(displayNameKey, displayName)
 .app-editor {
     grid-column: 1 / 2;
     grid-row: 2 / 3;
+}
+
+.app-chat {
+    grid-column: 2 / 3;
 }
 
 /* .click-counters {

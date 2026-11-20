@@ -10,9 +10,11 @@ const router = createRouter({
             component: () => import('../views/HomeView.vue')
         },
         {
+
             path: '/editor/:prosjektId?',
             name: 'editor',
-            component: () => import('../views/EditorView.vue'),
+            component: () => import('../views/EditorView.vue')
+
             //meta: { requiresAuth: true }
         },
         {
