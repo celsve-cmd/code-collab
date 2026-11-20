@@ -211,3 +211,97 @@ Funksjonen kan validere input, trigge flere effekter samtidig og gir ett tydelig
 Barna kan da lese via en readonly-ref og endre kun via funksjonen, i stedet for å skrive fritt fra hvor som helst.
 
 ----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+VUE ROUTER
+---------------------------------------------------------------------------------------
+
+Hva er den egentlige forskjellen på server-side navigation og client-side navigation?
+Kan du forklare det med dine egne ord?
+
+--Ved server-side navigation sender nettleseren en ny HTTP-request til serveren for hver URL.
+Serveren returnerer en ny HTML-fil, og nettleseren kaster alt den hadde og laster inn HTML, CSS og JavaScript på nytt,
+så siden blinker. 
+Ved client-side navigation lastes HTML-en og JavaScript-en bare én gang.
+Når brukeren navigerer, endrer JavaScript URL-en og bytter ut komponenten som vises, uten ny request til serveren
+og uten at siden lastes på nytt.
+
+---------------------------------------------------------------------------------------
+
+Hvorfor fungerer back/forward-knappen med Vue Router?
+Hvilket nettleser-API gjør det mulig?
+
+--Vue Router bruker nettleserens History API. Med history.pushState() endres URL-en og en ny oppføring legges
+i historikken uten at siden lastes på nytt.
+Når brukeren trykker back eller forward, trigger nettleseren et popstate-event, og Vue Router lytter på den,
+matcher den nye URL-en mot rutene og bytter komponent.
+
+---------------------------------------------------------------------------------------
+
+Hva skjer hvis du har to routes med samme path — { path: '/editor', ... } to ganger?
+Hvilken komponent vises?
+
+--Matchingen går ovenfra og ned, og første match vinner.
+Har man to routes med /editor, vises komponenten til den første i arrayet. Den andre blir aldri nådd.
+
+---------------------------------------------------------------------------------------
+
+Hvorfor må vi bruke <RouterLink> og ikke en vanlig <a>-tag i en SPA?
+
+--En vanlig <a href="/editor"> får nettleseren til å sende en request til serveren og laste siden på nytt,
+og i en SPA har serveren ingen egen fil for /editor, så man risikerer 404 eller at all state går tapt.
+<RouterLink> rendres også som en <a>, men Vue Router fanger klikket, kaller preventDefault(), oppdaterer URL-en
+med pushState og bytter innholdet i <RouterView>, uten refresh.
+Den gir også aktive CSS-klasser som router-link-active.
+
+---------------------------------------------------------------------------------------
+
+Hva gjør app.use(router)?
+Hva skjer hvis du glemmer det?
+
+--app.use(router) installerer Vue Router som et plugin i Vue-appen. 
+Det registrerer <RouterLink> og <RouterView> globalt, gjør useRoute() og useRouter() tilgjengelige, og starter
+routeren slik at den leser gjeldende URL og lytter på endringer.
+
+Glemmer man det, får man advarselen “Failed to resolve component: RouterView/RouterLink”, og ingenting vises. 
+useRouter() og useRoute() returnerer undefined, så alt som bruker dem krasjer.
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Hva er forskjellen på router.push() og router.replace()?
+
+--push() legger til en ny oppføring i nettleserens historikk, så brukeren kan trykke back og komme tilbake til forrige side.
+replace() bytter ut den gjeldende oppføringen i stedet for å legge til en ny, så forrige side forsvinner fra historikken,
+og back-knappen går til siden før den.
+
+replace() passer for omdirigeringer, som i eksempelet fra home til editor, der brukeren ikke skal kunne trykke tilbake
+til siden de ble sendt bort fra.
+
+---------------------------------------------------------------------------------------
+
+Hvorfor bruker vi router.push({ name: 'home' }) i stedet for router.push('/')? Hva er fordelen?
+
+--Med navn er koden uavhengig av selve URL-en.
+Endrer vi senere path fra / til /start, må vi bare endre den ene stedet i route-konfigurasjonen,
+og alle push({ name: ... }) fortsetter å fungere.
+Med path-strenger må vi lete opp og rette hver eneste en. 
+Navn gjør det også enklere å sende params, for eksempel push({ name: 'editor-prosjekt', params: { prosjektId: 123 } }),
+uten at vi må bygge URL-strengen selv.
+Skriver vi et navn som ikke finnes, får vi en tydelig feilmelding i stedet for at brukeren havner på en feil eller tom side.
+
+---------------------------------------------------------------------------------------
+
+Hva skjer hvis du kaller useRoute() utenfor <script setup>?
+
+--useRoute() og useRouter() er composables som bruker inject() bak kulissene,
+så de må kalles synkront under setup() eller i <script setup>.
+Kaller man dem utenfor, for eksempel i en klikk-handler, etter en await eller i en vanlig funksjon,
+finnes ingen aktiv komponentinstans, og man får en advarsel og undefined.
+Trenger man ruten utenfor en komponent, for eksempel i en API-klient,
+importerer man routeren og bruker router.currentRoute.value.
+
+----------------------------------------------------------------------------------------------------------------------------

@@ -2,7 +2,7 @@
 import { computed, inject, ref } from 'vue'
 import { userNameKey } from '../types'
 
-defineProps<{ charCount: number }>()
+defineProps<{ charCount: number; wordCount: number}>()
 const userName = inject(userNameKey, ref(''))
 
 const statusText = computed(() =>
@@ -13,6 +13,6 @@ const statusText = computed(() =>
 <template>
   <div class="toolbar">
     <span class="status">{{ statusText }}</span>
-    <span class="chars">{{ charCount }} tegn</span>
+    <span class="chars">{{ charCount }} tegn · {{ wordCount }} ord</span>
   </div>
 </template>

@@ -1,15 +1,16 @@
 import { ref, watch } from 'vue'
 
-export function useLocalStorage<T>(key: string, defaultValue: T) {
-  let initial = defaultValue
+export function tryParse<T>(raw: string | null, fallback: T): T {
+  if (raw === null) return fallback
   try {
-    const stored = localStorage.getItem(key)
-    if (stored !== null) initial = JSON.parse(stored)
+    return JSON.parse(raw) as T
   } catch {
-    // ugyldig data, bruk default
+    return fallback
   }
+}
 
-  const data = ref<T>(initial)
+export function useLocalStorage<T>(key: string, defaultValue: T) {
+  const data = ref<T>(tryParse(localStorage.getItem(key), defaultValue))
 
   watch(data, (val) => {
     localStorage.setItem(key, JSON.stringify(val))
