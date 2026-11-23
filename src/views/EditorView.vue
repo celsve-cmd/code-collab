@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, provide, readonly, watch } from 'vue'
+import { watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 //components
@@ -8,29 +8,12 @@ import AppHeader from '../components/AppHeader.vue'
 import AppFooter from '../components/AppFooter.vue'
 import TextEditor from '../components/TextEditor.vue'
 import AssistantPanel from '../components/AssistantPanel.vue'
-//import ClickCounter from '../components/ClickCounter.vue'
-
-//composables
-//import { useMouse } from '../composables/useMouse'
-//import { useTimer } from '../composables/useTimer'
-import { useLocalStorage } from '../composables/useLocalStorage'
-import { userNameKey, setUserNameKey, displayNameKey } from '../types'
 
 const route = useRoute()
 
 watch(() => route.params.prosjektId, (nyId) => {
     console.log('Byttet prosjekt til:', nyId)
-    // Her ville du lastet inn prosjektdata
 })
-
-const userName = useLocalStorage('code-collab-user', '')
-provide(userNameKey, readonly(userName))
-provide(setUserNameKey, (name: string) => {
-    userName.value = name
-})
-
-const displayName = computed(() => userName.value || 'Anonym')
-provide(displayNameKey, displayName)
 
 //const { x, y } = useMouse()
 //const { formatted, isRunning, start, stop, reset } = useTimer(60, () => {
@@ -46,7 +29,6 @@ provide(displayNameKey, displayName)
 
         <div class="app-layout">
             <ProjectBadge class="app-badge" />
-
             <AppHeader class="app-header" />
             <TextEditor class="app-editor" />
             <AssistantPanel class="app-chat" />
@@ -72,6 +54,7 @@ provide(displayNameKey, displayName)
             </div>
             -->
 
+
             <AppFooter appName="Code Collab" :year="new Date().getFullYear()" class="app-footer" />
         </div>
     </div>
@@ -91,40 +74,15 @@ provide(displayNameKey, displayName)
 .app-layout {
     display: grid;
     grid-template-columns: 1fr 300px;
-    grid-template-rows: auto 1fr auto;
+    grid-template-rows: auto auto 1fr auto;
     min-height: 100vh;
     gap: 1px;
     background: #ddd;
 }
 
-.app-badge,
-.app-header,
-.app-footer {
-    grid-column: 1 / -1;
-    margin-top: 10px;
-}
-
-.app-editor {
-    grid-column: 1 / 2;
-    grid-row: 2 / 3;
-}
-
-.app-chat {
-    grid-column: 2 / 3;
-}
-
-/* .click-counters {
-    display: flex;
-    gap: 1rem;
-    padding: 1rem;
-}
-
-.mouse-coordinates {
-    position: fixed;
-    bottom: 1rem;
-    right: 1rem;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 0.2rem;
-    border-radius: 4px;
-} */
+.app-badge  { grid-column: 1 / -1; grid-row: 1; }
+.app-header { grid-column: 1 / -1; grid-row: 2; margin-top: 10px; }
+.app-editor { grid-column: 1 / 2;  grid-row: 3; }
+.app-chat   { grid-column: 2 / 3;  grid-row: 3; }
+.app-footer { grid-column: 1 / -1; grid-row: 4; margin-top: 10px; }
 </style>

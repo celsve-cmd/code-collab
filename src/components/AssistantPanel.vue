@@ -1,21 +1,29 @@
 <script setup lang="ts">
-import { inject, ref } from 'vue'
-import { userNameKey } from '../types'
-import { useMessages } from '../composables/useMessages'
+import { ref } from 'vue'
+import { useMessageStore } from '../stores/useMessageStore'
+import { useUserStore } from '../stores/useUserStore'
 
-const userName = inject(userNameKey, ref(''))
+const messageStore = useMessageStore()
+const userStore = useUserStore()
+const newMessage = ref('')
 
-const { messages, newMessage, messageCount, send } = useMessages()
+function send() {
+  if (!newMessage.value.trim()) return
+  messageStore.addMessage(newMessage.value)
+  newMessage.value = ''
+}
 </script>
-
 
 <template>
   <aside>
-    <h2>Assistent ({{ messageCount }})</h2>
-    <p v-if="messages.length === 0">Ingen meldinger ennå.</p>
+    <h2>Assistent ({{ messageStore.messageCount }})</h2>
+    <p v-if="userStore.userName">Logget inn som: {{ userStore.userName }}</p>
+    <p v-else>Skriv navnet ditt i headeren.</p>
+
+    <p v-if="messageStore.messages.length === 0">Ingen meldinger ennå.</p>
     <ul v-else>
-      <li v-for="message in messages" :key="message.id" :class="message.role">
-        <strong>{{ message.role === 'user' ? userName : 'Assistent' }}:</strong>
+      <li v-for="message in messageStore.messages" :key="message.id" :class="message.role">
+        <strong>{{ message.role === 'user' ? userStore.userName : 'Assistent' }}:</strong>
         {{ message.text }}
       </li>
     </ul>

@@ -1,29 +1,20 @@
+import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import type { Message } from '../types'
 
-export type Role = 'user' | 'assistant'
-
-export interface Message {
-  id: number
-  role: Role
-  text: string
-}
-
-export function useMessages() {
+export const useMessageStore = defineStore('messages', () => {
   const messages = ref<Message[]>([])
-  const newMessage = ref('')
   const isWaiting = ref(false)
   let nesteId = 1
 
   const messageCount = computed(() => messages.value.length)
 
-  function send() {
+  function addMessage(text: string) {
     if (isWaiting.value) return
+    const trimmed = text.trim()
+    if (!trimmed) return
 
-    const text = newMessage.value.trim()
-    if (!text) return
-
-    messages.value.push({ id: nesteId++, role: 'user', text })
-    newMessage.value = ''
+    messages.value.push({ id: nesteId++, role: 'user', text: trimmed })
     isWaiting.value = true
 
     // Stub. I uke 4 bytter vi denne med et ekte API-kall.
@@ -37,5 +28,13 @@ export function useMessages() {
     }, 800)
   }
 
-  return { messages, newMessage, messageCount, isWaiting, send }
-}
+  function removeMessage(id: number) {
+    messages.value = messages.value.filter((m) => m.id !== id)
+  }
+
+  function reset() {
+    messages.value = []
+  }
+
+  return { messages, messageCount, isWaiting, addMessage, removeMessage, reset }
+})

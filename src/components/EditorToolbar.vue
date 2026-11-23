@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { computed, inject, ref } from 'vue'
-import { userNameKey } from '../types'
+import { computed} from 'vue'
+import { useUserStore } from '../stores/useUserStore'
 
 defineProps<{ charCount: number; wordCount: number}>()
-const userName = inject(userNameKey, ref(''))
+
+const userStore = useUserStore()
 
 const statusText = computed(() =>
-  userName.value ? `${userName.value} redigerer ` : 'Skriv navnet ditt for å starte '
+  userStore.userName ? `${userStore.userName} redigerer ` : 'Skriv navnet ditt for å starte '
 )
 </script>
 
