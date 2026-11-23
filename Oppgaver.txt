@@ -305,3 +305,81 @@ Trenger man ruten utenfor en komponent, for eksempel i en API-klient,
 importerer man routeren og bruker router.currentRoute.value.
 
 ----------------------------------------------------------------------------------------------------------------------------
+
+useMessages() i AssistantPanel og et chat-vindu til: to chat-er eller én? 
+Hvorfor?
+
+--To chat-er. En composable gir tilstand per instans: hvert kall til useMessages() kjører funksjonen på nytt og
+lager nye ref-er, så messages i AssistantPanel og messages i det andre chat-vinduet er to helt separate lister.
+Meldinger som sendes i det ene, dukker ikke opp i det andre.
+Det er samme poenget som med useMouse() tidligere: composables gjenbruker logikk, ikke tilstand.
+Med useMessageStore() hadde begge fått samme store og dermed samme chat, siden en Pinia-store er en singleton.
+
+---------------------------------------------------------------------------------------
+
+I MiniPlanner kalte du notifySubscribers() etter hver endring. Hvorfor trenger storen ikke det tilsvarende kallet?
+
+--I MiniPlanner måtte vi varsle for hånd, fordi AppModel var vanlige objekter som ikke visste at noen leste dem.
+I en Pinia-store er state bygget av ref, og Vue sporer automatisk hvem som leser .value (via Proxy).
+Når en action endrer verdien, vet Vue allerede hvilke komponenter som leste den, og planlegger en ny rendering gjennom oppdateringskøen.
+subscribe() og notifySubscribers() forsvinner derfor: arkitekturen er den samme
+(tilstanden har en eier, og operasjonene har én adresse), men varslingen er blitt gratis.
+
+---------------------------------------------------------------------------------------
+
+En medstudant foreslår export const tasks = ref([]) som «butikk». Hva mister dere sammenlignet med en store?
+
+--Delingen fungerer, siden alle som importerer tasks får samme ref. Men man mister:
+
+*DevTools: ingen oversikt over state og ingen time-travel i Pinia DevTools.
+
+*Struktur rundt hvem som endrer tilstanden: hvem som helst kan skrive tasks.value.push(...) fra hvor som helst,
+og man vet ikke hvilken komponent som gjorde det.
+
+*Ett sted for reglene: i en store ligger operasjoner som addTask() og removeTask() ved siden av state,
+med validering og regler på samme sted.
+
+*Skalering: med mange slike globale refs blir det uoversiktlig hvem som eier hva.
+En store er den organiserte versjonen av det samme.
+
+
+(composables = tilstand per instans, stores = én delt instans som lever hele appens liv.)
+----------------------------------------------------------------------------------------------------------------------------
+
+Fra oppgave 0b (noter)
+
+---------------------------------------------------------------------------------------
+Hva var borte:
+
+--Både navnet i headeren og meldingene i chatten var borte da jeg kom tilbake fra forsiden.
+
+---------------------------------------------------------------------------------------
+
+Hvor userName bor nå:
+
+--I en ref i EditorView (delt via provide/inject). Meldingene bodde i useMessages(), inne i AssistantPanel.
+
+---------------------------------------------------------------------------------------
+
+Hvor tilstanden bor etter dagens jobb:
+
+--I useUserStore og useMessageStore, som ligger utenfor viewene.
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Hvorfor overlever tilstanden nå, men ikke i oppgave 0b? Hvor bor den, og hvem eier den?
+
+--Tilstanden overlever nå fordi den bor i Pinia-stores, som er singletons som lever hele appens liv, mens ref-ene i EditorView og useMessages() døde
+da komponentene ble unmountet ved navigasjon.
+Eieren er storen (useUserStore og useMessageStore), ikke viewet eller komponenten som bruker den.
+
+----------------------------------------------------------------------------------------------------------------------------
+
+DevTools viser bare ting registrert via Pinia. 
+Hvilken del av Pinia gjør at setUserName dukker opp i tidslinjen, men ikke en rå messages.value.push() i en komponent?
+
+--Det er at tilstanden og operasjonene er registrert i Pinia via defineStore.
+Actions som setUserName går gjennom storen, så Pinia kan logge dem på tidslinjen og lagre state før og etter.
+En rå messages.value.push() i en komponent skjer utenom storens actions, så Pinia har ingen hendelse å vise, og du mister sporbarheten og time-travel.
+
+----------------------------------------------------------------------------------------------------------------------------
