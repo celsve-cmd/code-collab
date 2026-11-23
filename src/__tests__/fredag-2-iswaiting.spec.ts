@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest'
-import { useMessages } from '../composables/useMessages'
+import { useMessageStore } from '../stores/useMessageStore'
 
 describe('useMessages med isWaiting', () => {
   afterEach(() => {
