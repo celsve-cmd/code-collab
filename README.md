@@ -1,54 +1,76 @@
-# code-collab
+# Code Collab
 
-This template should help get you started developing with Vue 3 in Vite.
+En samarbeidsapp for kode og chat, bygget med **Vue 3 og TypeScript og Pinia (under utvikling)**.
+Prosjektet utvikles underveis gjennom emne 3, så funksjonaliteten vokser uke for uke.
 
-## Recommended IDE Setup
+> 🚧 **Status:** under utvikling. Ting endrer seg, og ikke alt er ferdig.
 
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
+## Dette virker nå
 
-## Recommended Browser Setup
+- **To views med Vue Router:** forside og editor, med dynamiske ruter (`/editor/:prosjektId`)
+- **Teksteditor** med live-telling av tegn og ord
+- **Assistent-chat** med stub-svar (erstattes av et ekte API senere)
+- **Delt tilstand med Pinia:** brukernavn og meldinger overlever navigasjon mellom views
+- **Composables** for gjenbrukbar logikk (`useLocalStorage`, `useCharCount`, `useTimer`)
+- **Tester** med Vitest og Vue Test Utils
 
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
+## Teknologi
 
-## Type Support for `.vue` Imports in TS
+| Område | Verktøy |
+| --- | --- |
+| Rammeverk | Vue 3 (`<script setup>`) |
+| Språk | TypeScript |
+| Routing | Vue Router |
+| Tilstand | Pinia |
+| Bygg og dev-server | Vite |
+| Testing | Vitest, Vue Test Utils, jsdom |
+| Kodekvalitet | oxlint, ESLint, vue-tsc |
 
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
+## Kom i gang
 
-## Customize configuration
+Krever Node.js `^22.18.0` eller `>=24.12.0`.
 
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-```sh
+```bash
+git clone https://github.com/celsve-cmd/code-collab.git
+cd code-collab
 npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+Appen kjører da på `http://localhost:5173`.
 
-```sh
-npm run build
-```
+## Kommandoer
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+| Kommando | Hva den gjør |
+| --- | --- |
+| `npm run dev` | Starter utviklingsserveren |
+| `npm run build` | Typesjekker og bygger for produksjon |
+| `npm run preview` | Forhåndsviser produksjonsbygget |
+| `npm run test:unit` | Kjører testene med Vitest |
+| `npm run type-check` | Typesjekker med vue-tsc |
+| `npm run lint` | Kjører oxlint og ESLint |
 
-```sh
-npm run test:unit
-```
+## Prosjektstruktur
 
-### Lint with [ESLint](https://eslint.org/)
+​```
+src/
+├── components/   # Gjenbrukbare komponenter (header, editor, chat, ...)
+├── composables/  # Logikk med tilstand per instans
+├── stores/       # Pinia-stores (delt tilstand)
+├── views/        # Sider koblet til ruter
+├── router/       # Rutedefinisjoner
+└── __tests__/    # Enhetstester
+​```
 
-```sh
-npm run lint
-```
+## Veien videre
+
+Planen er åpen, og dette er ideer, ikke løfter:
+
+- [ ] Koble chatten mot et ekte API i stedet for stub-svar
+- [ ] Lagre tilstand slik at den overlever refresh
+- [ ] Flere tester for stores og komponenter
+
+## Om prosjektet
+
+Skoleprosjekt der jeg lærer moderne frontend-utvikling steg for steg.
+Ingen lisens er valgt ennå.
