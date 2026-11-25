@@ -14,3 +14,25 @@ const emit = defineEmits<{ 'update:userName': [value: string] }>()
     />
   </header>
 </template>
+
+
+<style scoped>
+header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: white;
+  border-radius: 6px;
+}
+
+header h1 {
+  margin: 0;
+  font-size: 1.4rem;
+}
+
+header p {
+  margin: 0;
+  flex: 1;
+}
+</style>

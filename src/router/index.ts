@@ -9,15 +9,15 @@ const router = createRouter({
       path: '/editor/:prosjektId?',
       name: 'editor',
       component: () => import('../views/EditorView.vue'),
-      meta: { requiresAuth: true }
+      //meta: { requiresAuth: true }
     },
     { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('../views/NotFoundView.vue') }
   ]
 })
 
 router.beforeEach((to) => {
-  if (to.meta.requiresAuth) {                    // ← konsulen: rutes på guard-metatag
-    const userStore = useUserStore()             // ← INN i callback
+  if (to.meta.requiresAuth) {
+    const userStore = useUserStore()
     if (!userStore.isLoggedIn) {
       return { name: 'home' }
     }

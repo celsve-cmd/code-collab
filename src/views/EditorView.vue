@@ -42,19 +42,35 @@ watch(() => route.params.prosjektId, (nyId) => {
 </script>
 
 <template>
-    <div>
-        <nav class="top-nav">
-            <RouterLink to="/">← Tilbake til forsiden</RouterLink>
-        </nav>
+  <div>
+    <nav class="top-nav">
+      <RouterLink to="/">← Tilbake til forsiden</RouterLink>
+      <ProjectBadge />
+    </nav>
 
-        <div class="app-layout">
-            <ProjectBadge class="app-badge" />
-            <AppHeader class="app-header" :userName="userStore.userName"
-                @update:userName="userStore.setUserName($event)" />
-            <TextEditor class="app-editor" :userName="userStore.userName" />
-            <AssistantPanel class="app-chat" :userName="userStore.userName" :messages="messageStore.messages"
-                :isWaiting="messageStore.isWaiting" @send-message="messageStore.addMessage($event)"
-                @remove-message="messageStore.removeMessage($event)" />
+    <div class="app-layout">
+      <AppHeader
+        class="app-header"
+        :userName="userStore.userName"
+        :displayName="userStore.displayName"
+        @update:userName="userStore.setUserName($event)"
+      />
+      <FileTree class="app-files" @select-file="handleSelectFile" />
+      <TextEditor
+        class="app-editor"
+        :userName="userStore.userName"
+        :model-value="currentContent"
+        :language="currentLanguage"
+        @update:model-value="updateContent"
+      />
+      <AssistantPanel
+        class="app-chat"
+        :userName="userStore.userName"
+        :messages="messageStore.messages"
+        :isWaiting="messageStore.isWaiting"
+        @send-message="messageStore.addMessage($event)"
+        @remove-message="messageStore.removeMessage($event)"
+      />
 
             <!--
             <div class="click-counters">
@@ -79,54 +95,72 @@ watch(() => route.params.prosjektId, (nyId) => {
 
 
             <AppFooter appName="Code Collab" :year="new Date().getFullYear()" class="app-footer" />
-        </div>
     </div>
+  </div>
 </template>
 
 <style scoped>
 .top-nav {
-    padding: 0.5rem 1rem;
-    background: #333;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 1rem;
+  background: #333;
 }
 
 .top-nav a {
-    color: #42b883;
-    text-decoration: none;
+  color: #42b883;
+  text-decoration: none;
 }
 
 .app-layout {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    grid-template-rows: auto auto 1fr auto;
-    min-height: 100vh;
-    gap: 1px;
-    background: #ddd;
+  display: grid;
+  grid-template-columns: minmax(180px, 250px) minmax(0, 1fr) minmax(220px, 300px);
+  grid-template-rows: auto minmax(0, 1fr) auto;
+  grid-template-areas:
+    'header header header'
+    'files editor chat'
+    'footer footer footer';
+  gap: 1rem;
+  padding: 1rem;
+  min-height: calc(100vh - 3rem);
+  background: #f3f4f6;
 }
 
-.app-badge {
-    grid-column: 1 / -1;
-    grid-row: 1;
-}
+.app-header { grid-area: header; }
+.app-files  { grid-area: files;  }
+.app-editor { grid-area: editor; min-width: 0; }
+.app-chat   { grid-area: chat;   }
+.app-footer { grid-area: footer; }
 
-.app-header {
-    grid-column: 1 / -1;
-    grid-row: 2;
-    margin-top: 10px;
-}
-
-.app-editor {
-    grid-column: 1 / 2;
-    grid-row: 3;
-}
-
+.app-files,
 .app-chat {
-    grid-column: 2 / 3;
-    grid-row: 3;
+  background: white;
+  border-radius: 6px;
+  padding: 1rem;
 }
 
-.app-footer {
-    grid-column: 1 / -1;
-    grid-row: 4;
-    margin-top: 10px;
+@media (max-width: 1000px) {
+  .app-layout {
+    grid-template-columns: minmax(160px, 220px) minmax(0, 1fr);
+    grid-template-rows: auto auto auto auto;
+    grid-template-areas:
+      'header header'
+      'files editor'
+      'chat chat'
+      'footer footer';
+  }
+}
+
+@media (max-width: 700px) {
+  .app-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'header'
+      'files'
+      'editor'
+      'chat'
+      'footer';
+  }
 }
 </style>

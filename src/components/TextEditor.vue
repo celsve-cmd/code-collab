@@ -42,9 +42,20 @@ const extensions = computed(() => {
     <Codemirror
       :model-value="props.modelValue"
       :extensions="extensions"
-      :style="{ height: '100%' }"
+      :style="{ height: '50vh', minHeight: '250px' }"
       placeholder="Skriv koden din her..."
       @update:model-value="emit('update:modelValue', $event)"
     />
   </section>
 </template>
+
+<style scoped>
+section {
+  display: flex;
+  flex-direction: column;
+  border-radius: 6px;
+  overflow: hidden;
+  background: white;
+}
+</style>
+
