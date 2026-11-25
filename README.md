@@ -52,7 +52,7 @@ Appen kjører da på `http://localhost:5173`.
 
 ## Prosjektstruktur
 
-​```
+```
 src/
 ├── components/   # Gjenbrukbare komponenter (header, editor, chat, ...)
 ├── composables/  # Logikk med tilstand per instans
@@ -60,7 +60,7 @@ src/
 ├── views/        # Sider koblet til ruter
 ├── router/       # Rutedefinisjoner
 └── __tests__/    # Enhetstester
-​```
+```
 
 ## Veien videre
 
