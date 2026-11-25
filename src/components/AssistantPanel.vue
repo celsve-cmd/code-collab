@@ -1,34 +1,46 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import { useMessageStore } from '../stores/useMessageStore'
-import { useUserStore } from '../stores/useUserStore'
+import type { Message } from '../types'
 
-const messageStore = useMessageStore()
-const userStore = useUserStore()
+const props = defineProps<{
+  userName: string
+  messages: Message[]
+  isWaiting?: boolean
+}>()
+
+const emit = defineEmits<{
+  sendMessage: [text: string]
+  removeMessage: [id: number]
+}>()
+
 const newMessage = ref('')
 
 function send() {
-  if (!newMessage.value.trim()) return
-  messageStore.addMessage(newMessage.value)
+  const text = newMessage.value.trim()
+  if (!text || props.isWaiting) return
+  emit('sendMessage', text)
   newMessage.value = ''
 }
 </script>
 
 <template>
   <aside>
-    <h2>Assistent ({{ messageStore.messageCount }})</h2>
-    <p v-if="userStore.userName">Logget inn som: {{ userStore.userName }}</p>
+    <h2>Assistent ({{ messages.length }})</h2>
+    <p v-if="userName">Logget inn som: {{ userName }}</p>
     <p v-else>Skriv navnet ditt i headeren.</p>
 
-    <p v-if="messageStore.messages.length === 0">Ingen meldinger ennå.</p>
+    <p v-if="messages.length === 0">Ingen meldinger ennå.</p>
     <ul v-else>
-      <li v-for="message in messageStore.messages" :key="message.id" :class="message.role">
-        <strong>{{ message.role === 'user' ? userStore.userName : 'Assistent' }}:</strong>
+      <li v-for="message in messages" :key="message.id" :class="message.role">
+        <strong>{{ message.role === 'user' ? userName : 'Assistent' }}:</strong>
         {{ message.text }}
+        <button @click="emit('removeMessage', message.id)">×</button>
       </li>
     </ul>
     <input v-model="newMessage" @keyup.enter="send" placeholder="Spør om koden..." />
-    <button @click="send">Send</button>
+    <button @click="send" :disabled="isWaiting">
+      {{ isWaiting ? 'Tenker...' : 'Send' }}
+    </button>
   </aside>
 </template>
 

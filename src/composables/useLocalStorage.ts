@@ -9,11 +9,12 @@ export function tryParse<T>(raw: string | null, fallback: T): T {
   }
 }
 
-export function useLocalStorage<T>(key: string, defaultValue: T) {
-  const data = ref<T>(tryParse(localStorage.getItem(key), defaultValue))
+export function useLocalStorage<T>(key: string, defaultValue: T, storage?: Storage) {
+  const lagring = storage ?? window.localStorage
+  const data = ref<T>(tryParse(lagring.getItem(key), defaultValue))
 
   watch(data, (val) => {
-    localStorage.setItem(key, JSON.stringify(val))
+    lagring.setItem(key, JSON.stringify(val))
   })
 
   return data

@@ -383,3 +383,90 @@ Actions som setUserName går gjennom storen, så Pinia kan logge dem på tidslin
 En rå messages.value.push() i en komponent skjer utenom storens actions, så Pinia har ingen hendelse å vise, og du mister sporbarheten og time-travel.
 
 ----------------------------------------------------------------------------------------------------------------------------
+
+
+Oppgave 0b: hypotese
+
+-- EditorToolbar bruker inject med default-verdi ref('').
+Siden provide ble slettet fra EditorView i mandagsryddingen, finner inject aldri noen provider og får alltid den tomme default-verdien.
+Derfor står toolbaren fast på «Skriv navnet ditt for å starte», uansett hva jeg skriver i headeren.
+
+---------------------------------------------------------------------------------------
+
+Oppgave 1: prop drilling
+
+--userName går gjennom to ledd (EditorView → TextEditor → EditorToolbar).
+TextEditor bruker ikke navnet selv, den videresender det bare. Det er prop drilling.
+Vi valgte det bevisst fordi det bare er ett mellomledd, dataflyten er synlig i props, og komponentene kan testes uten store eller provider.
+
+---------------------------------------------------------------------------------------
+
+Oppgave 5c:
+Hvilket symptom ser du uten fersk Pinia? (Hint: én av testene benytter data fra en annen.)
+
+--Uten setActivePinia(createPinia()) i beforeEach deler testene én singleton-store.
+En test som legger til data, gjør at neste test starter med dem, for eksempel med feil antall meldinger.
+Testene blir avhengige av rekkefølgen, og en test kan virke alene men feile sammen med de andre.
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Oppgave 6c:
+
+Hvor mange meldinger var forventet, og hvor mange forsvant?
+
+--Forventet 2 meldinger igjen, men fikk 0. Alle tre brukermeldingene forsvant, ikke bare den første.
+
+---------------------------------------------------------------------------------------
+
+Hvilken linje peker feilmeldingen på?
+
+--Linjen i useMessageStore.spec.ts med expect(store.messages).toHaveLength(2).
+Den ligger i testfilen, men peker på at removeMessage i storen gjorde noe galt.
+
+---------------------------------------------------------------------------------------
+
+Hva i bug-en forårsaker det (filtrering på feil felt)?
+
+--Koden filtrerer på m.role i stedet for m.id.
+Alle brukermeldinger har rollen user, så én sletting fjerner hele samtalen.
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Oppgave 7:
+
+Hvorfor trenger denne testen createPinia() — når de rene komponenttestene ikke trengte det?
+
+--EditorView kaller useUserStore() og useMessageStore() selv, og storene trenger en aktiv Pinia.
+Uten createPinia() feiler mounten.
+De rene komponenttestene trengte det ikke, fordi bladkomponentene bare kjenner til props og events, ikke til storer.
+
+
+----------------------------------------------------------------------------------------------------------------------------
+
+Avslutning: hvem har ansvaret for hva?
+---------------------------------------------------------------------------------------
+
+Storen eier tilstanden — men hvem eier det navnet som bladkomponentene viser?
+Og hva var grunnen til at steg 0 måtte gjenopprette uke 1-regelen (barnet muterer ikke)?
+
+--Storen (useUserStore) eier navnet.
+Bladkomponentene får bare verdien som prop og sier fra med events.
+Etter mandagen muterte AppHeader og AssistantPanel storen direkte, som brøt regelen «barnet muterer ikke, barnet sier fra».
+Det gjorde dem avhengige av Pinia og vanskelige å teste. Nå er EditorView koblingen mellom storen og komponentene.
+
+---------------------------------------------------------------------------------------
+
+mount(AppHeader) med feil props gir en konkret feilmelding. Kjør den, og les den — hva peker den på?
+
+--Feilmeldingen peker på komponenten og navnet på propen som mangler (userName).
+Den forteller meg at AppHeader forventer en userName-prop som jeg ikke ga den, så jeg ser med en gang hva kontrakten til komponenten er.
+
+---------------------------------------------------------------------------------------
+
+Testen fra oppgave 6 fanget en bug som fire klikk-runder ikke fanget. Hva er det testene gjør, som klikking ikke klarer?
+
+--En test reproduserer akkurat den situasjonen (tre brukermeldinger, slett den første) på millisekunder, hver gang.
+Klikking krever at jeg husker kombinasjonen og gjør den for hånd, og feilen vises bare i et bestemt tilfelle.
+Testen lever også videre i repoet og fanger feilen neste gang noen endrer koden.
+
+----------------------------------------------------------------------------------------------------------------------------

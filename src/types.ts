@@ -11,3 +11,11 @@ export interface Message {
   role: Role
   text: string
 }
+
+export interface FileNode {
+  name: string
+  type: 'file' | 'folder'
+  children?: FileNode[]
+  language?: 'javascript' | 'json' | 'html'
+  content?: string
+}

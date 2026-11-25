@@ -1,13 +1,10 @@
 <script setup lang="ts">
-import { computed} from 'vue'
-import { useUserStore } from '../stores/useUserStore'
+import { computed } from 'vue'
 
-defineProps<{ charCount: number; wordCount: number}>()
-
-const userStore = useUserStore()
+const props = defineProps<{ userName: string; charCount: number; wordCount: number }>()
 
 const statusText = computed(() =>
-  userStore.userName ? `${userStore.userName} redigerer ` : 'Skriv navnet ditt for å starte '
+  props.userName ? `${props.userName} redigerer ` : 'Skriv navnet ditt for å starte '
 )
 </script>
 

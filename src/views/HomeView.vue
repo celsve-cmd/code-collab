@@ -1,4 +1,18 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { useUserStore } from '../stores/useUserStore'
+
+const router = useRouter()
+const userStore = useUserStore()
+const navn = ref(userStore.userName)
+
+function start() {
+  userStore.setUserName(navn.value)
+  if (userStore.isLoggedIn) {
+    router.push({ name: 'editor' })
+  }
+}
 </script>
 
 <template>
@@ -6,11 +20,12 @@
     <h1>Code Collab</h1>
     <p>Skriv kode og diskuter med teamet ditt — i sanntid.</p>
 
-    <RouterLink to="/editor" class="btn">Start koding →</RouterLink>
+    <input v-model="navn" @keyup.enter="start" placeholder="Skriv navnet ditt..." />
+    <button class="btn" @click="start">Start koding →</button>
 
     <div class="recent-projects">
       <h2>Nylige prosjekter</h2>
-      <RouterLink to="/editor/123">Prosjekt Alpha <br></RouterLink>
+      <RouterLink to="/editor/123">Prosjekt Alpha</RouterLink>
       <RouterLink to="/editor/456">Prosjekt Beta</RouterLink>
     </div>
   </main>

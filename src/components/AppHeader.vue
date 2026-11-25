@@ -1,16 +1,15 @@
 <script setup lang="ts">
-import { useUserStore } from '../stores/useUserStore'
-
-const userStore = useUserStore()
+defineProps<{ userName: string; displayName?: string }>()
+const emit = defineEmits<{ 'update:userName': [value: string] }>()
 </script>
 
 <template>
   <header>
     <h1>Code Collab</h1>
-    <p>Hei, {{ userStore.displayName }}!</p>
+    <p>Hei, {{ displayName ?? userName }}!</p>
     <input
-      :value="userStore.userName"
-      @input="userStore.setUserName(($event.target as HTMLInputElement).value)"
+      :value="userName"
+      @input="emit('update:userName', ($event.target as HTMLInputElement).value)"
       placeholder="Skriv navnet ditt..."
     />
   </header>
